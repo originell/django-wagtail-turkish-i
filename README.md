@@ -6,23 +6,35 @@ As originally discussed in [a thread in Wagtail's support channel](https://wagta
 
 ## Setup
 
-Project was created using wagtail's _Getting Started_.
+This repo contains 2 projects, both using official procedures:
+
+1. was created using wagtail's _Getting Started_ (`mysite_wagtail`)
+2. was created using django's `django-admin.py startproject` and `./manage.py startapp` (`mysite_django`).
 
 ```sh
-$ pip install -r requirements.txt
-$ ./manage.py migrate
-# User to access the CMS Admin
-$ ./manage.py createsuperuser
-# And off we go!
-$ ./manage.py runserver
+$ pipenv install
+# Cd into either mysite_django or mysite_wagtail
+$ cd mysite_django
+$ ./manage.py test
 ```
+
+In both projects, the tests fail. Why they do and what the expected behaviour would
+be, is explained in detail below.
 
 ## The issue
 
 When wanting to create a new page with the title `Hello İstanbul`, the slugification
 fails. Further analysis is below the _Steps to reproduce_.
 
-## Steps to reproduce
+## Wagtail: Steps to reproduce in Webinterface
+
+```sh
+$ ./manage.py migrate
+# Create a user to access the admin interface.
+$ ./manage.py createsuperuser
+# And off we go!
+$ ./manage.py runserver
+```
 
 1. Log into the admin with your superuser: [http://localhost:8000/admin/](http://localhost:8000/admin/).
 2. Open up Home in the explorer

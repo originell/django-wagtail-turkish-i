@@ -269,8 +269,8 @@ character that can not be validated by the `SlugField`.
 
 There are two ways to solve this:
 
-1. Extend the `slug_unicode_re` to allow for combining diacritics.
-2. Change when the lowercasing happens.
+1. Extend the `slug_unicode_re` to allow for combining diacritics. Or…
+2. …change when the lowercasing happens.
 
 Personally I am leaning towards option `2`.
 

@@ -300,3 +300,25 @@ Out[38]: 'hello-istanbul'
 In [39]: slug_unicode_re.match('hello-istanbul')
 Out[39]: <re.Match object; span=(0, 14), match='hello-istanbul'>
 ```
+
+### An even deeper dive in
+
+Thanks to [Matt Westcott's suggestion](https://wagtailcms.slack.com/archives/C81FGJR2S/p1571400630283400?thread_ts=1570706995.063800&cid=C81FGJR2S)
+that it could also be a bug in Python itself, I took a quick dive into the unicode
+plane myself.
+
+-   The `İ` is the _Latin Capital Letter I with Dot Above_. It's codepoint is `U+0130`.
+    According to the [chart for the Latin Extended-A set](https://www.unicode.org/charts/PDF/U0100.pdf),
+    it's lowercase version is `U+0069`.
+-   `U+0069` lives in the [C0 Controls and Basic Latin set](https://www.unicode.org/charts/PDF/U0000.pdf).
+    Lo and behold: it is the _Latin small letter I_. So a latin lowercase `i`.
+
+Does this really mean that Python is doing something weird here by adding the
+_Combining dot above_?
+
+```python
+In [8]: [unicodedata.name(character) for character in 'İ'.lower()]
+Out[8]: ['LATIN SMALL LETTER I', 'COMBINING DOT ABOVE']
+```
+
+I'm in no way a unicode pro, so my assumption might be very naive and wrong.

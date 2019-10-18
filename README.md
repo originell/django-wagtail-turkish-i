@@ -24,7 +24,7 @@ be, is explained in detail below.
 ## The issue
 
 When wanting to create a new page with the title `Hello İstanbul`, the slugification
-fails. Further analysis is below the _Steps to reproduce_.
+with `allow_unicode=True` fails. Further analysis is below the _Steps to reproduce_.
 
 ## Wagtail: Steps to reproduce in Webinterface
 
@@ -105,6 +105,8 @@ Indeed it does! So it is a "regular" small "i" with the combining diacritic "dot
 
 So what is going on in Django? As far as I can tell, Wagtail does not have anything
 to do with this, as [it simply calls django's slugify()](https://github.com/wagtail/wagtail/blob/e2607f917cc06bdf901ff7a52483ec89ec1115ba/wagtail/core/models.py#L426).
+Furthermore it is possible to re-create the exact same error when using only Django,
+as is shown in `mysite_django`.
 
 Now, let's go down the rabbit hole.
 
@@ -117,15 +119,33 @@ Now, let's go down the rabbit hole.
 
 We are going to skip this. Looking [very unsuspicious](https://github.com/wagtail/wagtail/blob/e2607f917cc06bdf901ff7a52483ec89ec1115ba/wagtail/core/models.py#L426).
 
+In `mysite_django`, we clone this behaviour in the `mysite_django/demo/models.py`.
+
 #### 2. django slugifies the title
 
 We start by taking a look at [django's slugify](https://github.com/django/django/blob/master/django/utils/text.py#L400).
+
+```python
+def slugify(value, allow_unicode=False):
+    """
+    Convert to ASCII if 'allow_unicode' is False. Convert spaces to hyphens.
+    Remove characters that aren't alphanumerics, underscores, or hyphens.
+    Convert to lowercase. Also strip leading and trailing whitespace.
+    """
+    value = str(value)
+    if allow_unicode:
+        value = unicodedata.normalize('NFKC', value)
+    else:
+        value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore').decode('ascii')
+    value = re.sub(r'[^\w\s-]', '', value).strip().lower()
+    return re.sub(r'[-\s]+', '-', value)
+```
 
 First our string (`"Hello İstanbul"`) is normalized. So it turns each unicode
 character into a defined "normalized" form
 ([python's docs on this explain it well](https://docs.python.org/3.7/library/unicodedata.html#unicodedata.normalize)).
 
-When we `allow_unicode`, django uses the normalized C form:
+We do `allow_unicode`, so Django uses the normalized C form:
 
 ```python
 # https://github.com/django/django/blob/master/django/utils/text.py#L400
@@ -313,7 +333,7 @@ In [39]: slug_unicode_re.match('hello-istanbul')
 Out[39]: <re.Match object; span=(0, 14), match='hello-istanbul'>
 ```
 
-### An even deeper dive in
+### An even deeper dive in (Is Python doing this right?)
 
 Thanks to [Matt Westcott's suggestion](https://wagtailcms.slack.com/archives/C81FGJR2S/p1571400630283400?thread_ts=1570706995.063800&cid=C81FGJR2S)
 that it could also be a bug in Python itself, I took a quick dive into the unicode

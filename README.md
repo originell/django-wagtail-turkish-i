@@ -269,10 +269,10 @@ character that can not be validated by the `SlugField`.
 
 There are two ways to solve this:
 
-A. Extend the `slug_unicode_re` to allow for combining diacritics.  
-B. Change when the lowercasing happens.
+1. Extend the `slug_unicode_re` to allow for combining diacritics.
+2. Change when the lowercasing happens.
 
-Personally I am leaning towards option `B`.
+Personally I am leaning towards option `2`.
 
 So [this line](https://github.com/django/django/blob/master/django/utils/text.py#L404)
 in `django/utils/text.py`'s `slugify`:

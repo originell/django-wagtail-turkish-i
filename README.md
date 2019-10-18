@@ -185,7 +185,7 @@ Out[24]: 'Hello İstanbul'
 
 As expected, everything stays the same.
 
-Now to the last step in this very line is lowercasing the string:
+Now the last step in this very line is to lowercase the string:
 
 ```python
 In [26]: re.sub(r'[^\w\s-]', '', "Hello İstanbul").strip().lower()
